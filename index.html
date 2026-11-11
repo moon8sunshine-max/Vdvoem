@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1021"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Playfair+Display:ital,wght@1,500&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <title>Вдвоём</title>
 <style>
 :root{color-scheme:dark;--bg:#1b1021;--g1:#3a1f42;--g2:#2e1a45;--cd:rgba(255,255,255,.07);--bd:rgba(255,255,255,.13);--tx:#f6e9f1;--mu:#b7a0b4;--ac:#ff8fb1;--ac2:#f5c9a8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -110,6 +110,21 @@ html{overflow-anchor:none}
 .pimg{width:100%;border-radius:14px;max-height:360px;object-fit:cover}.vimg{width:100%;max-height:55vh;object-fit:contain;border-radius:12px;background:#0006}
 .cml{max-height:140px;overflow:auto;margin:8px 0}.cmi{padding:4px 0;border-bottom:1px solid var(--bd);font-size:14px;text-align:left}.vbt{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center}.rxr button small{font-size:11px;margin-left:2px}
 .dphs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.dph{width:72px;height:72px;object-fit:cover;border-radius:10px}.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.tools input[type=color]{width:44px;margin:0;flex:none}.tools button.on{background:var(--ac);color:#2a1020}
+
+.crystal-signature{display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,20px);width:100%;padding:8px 6px 4px;position:relative;isolation:isolate}
+.crystal-name{position:relative;display:inline-block;font-family:'Cormorant Garamond','Playfair Display',Georgia,serif;font-size:var(--cfs,clamp(35px,9vw,58px));font-weight:700;line-height:1.2;letter-spacing:1px;white-space:nowrap;
+ background:linear-gradient(180deg,#fff 0%,#fff0fc 12%,#f5c8ed 27%,#e6a2e0 43%,#c99ae8 58%,#a77bc9 76%,#f9d8f5 91%,#fff 100%);background-size:100% 200%;background-position:50% 0%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+ filter:drop-shadow(0 2px 0 #e5b6e8) drop-shadow(0 4px 0 #9b65ae) drop-shadow(0 8px 8px #0008) drop-shadow(0 0 12px #e9a2e880);animation:crystal-light 9s ease-in-out infinite}
+.floating-heart{position:relative;flex:0 0 42px;width:42px;height:54px;display:flex;align-items:center;justify-content:center;animation:heart-float 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #ff8bd8) drop-shadow(0 0 16px #bb7bff)}
+.heart-gem{width:36px;height:34px;display:block}
+.heart-spark{position:absolute;color:#fff0ff;text-shadow:0 0 9px #ff8edc;pointer-events:none}
+.spark-one{top:0;right:-5px;font-size:12px;animation:sparkle 2s infinite}.spark-two{bottom:4px;left:-6px;font-size:10px;animation:sparkle 2s 1s infinite}
+@keyframes crystal-light{0%,100%{background-position:50% 0%}50%{background-position:50% 100%}}
+@keyframes heart-float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-9px) rotate(5deg)}}
+@keyframes sparkle{0%,100%{opacity:.25;transform:scale(.7) rotate(0deg)}50%{opacity:1;transform:scale(1.3) rotate(45deg)}}
+.pc .pname{display:none}
+@media (max-width:380px){.crystal-signature{gap:7px}.floating-heart{flex-basis:30px;width:30px}.heart-gem{width:28px;height:27px}.crystal-name{letter-spacing:0}}
+@media (prefers-reduced-motion:reduce){.crystal-name,.floating-heart,.heart-spark,.hw.full,.spk{animation:none}}
 #cf{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%;background:none;border:0;border-radius:0}
 </style></head><body>
 <div id="er"></div>
@@ -129,7 +144,8 @@ html{overflow-anchor:none}
 <main id="app" style="display:none">
 <header><div class="logo">vdvoem</div></header>
 <section class="tab on" id="t0">
-<h1>Наша история любви</h1><div id="nm" style="display:none"></div>
+<h1>Наша история любви</h1><div class="crystal-signature" id="csg"><span class="crystal-name" id="cn1"></span><span class="floating-heart"><svg class="heart-gem" viewBox="0 0 32 30" aria-hidden="true"><defs><linearGradient id="hgm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="#ffc8ed"/><stop offset=".5" stop-color="#ff77c8"/><stop offset=".78" stop-color="#bd70ff"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path d="M16 29C4 20 1 14 1 9 1 4 5 1 9 1c3 0 6 2 7 4 1-2 4-4 7-4 4 0 8 3 8 8 0 5-3 11-15 20z" fill="url(#hgm)" stroke="#fff" stroke-opacity=".7" stroke-width="1"/><path d="M7 5c2-2 5-2 6 0" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.6" stroke-linecap="round"/></svg><span class="heart-spark spark-one">✦</span><span class="heart-spark spark-two">✧</span></span><span class="crystal-name" id="cn2"></span></div>
+<div id="nm" style="display:none"></div>
 <div class="pair"><div class="pc" onclick="go(4)"><div class="avw"><div class="av" id="a1"></div></div><div class="pname" id="n1"></div><div class="pst" id="s1"></div></div><div class="ln"></div><div class="pc" onclick="openPartner()"><div class="avw"><div class="av" id="a2"></div></div><div class="pname" id="n2"></div><div class="pst" id="s2"></div></div></div>
 <div class="days" id="dy">—</div><div class="dl" id="dl"></div><div class="mu" style="text-align:center" id="lvl"></div>
 <div class="c" id="an" style="display:none;margin-top:12px;text-align:center"></div>
@@ -307,7 +323,7 @@ function confetti(){const c=document.createElement('canvas');c.id='cf';c.width=i
  const ps=Array.from({length:120},()=>({x:innerWidth/2+(Math.random()-.5)*80,y:innerHeight*.62,vx:(Math.random()-.5)*15,vy:-Math.random()*17-6,r:Math.random()*6,vr:(Math.random()-.5)*.3,s:8+Math.random()*12,k:Math.random()<.4?Math.floor(Math.random()*3):-1,c:cols[Math.floor(Math.random()*6)]}));
  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-t/170);if(p.k>=0&&FI.complete&&FI.naturalWidth)x.drawImage(FI,p.k*64,0,64,64,-p.s*1.6,-p.s*1.6,p.s*3.2,p.s*3.2);else{x.fillStyle=p.c;x.font=p.s*2+'px sans-serif';x.textAlign='center';x.fillText('♥',0,p.s/2)}x.restore()});t++;t<180?requestAnimationFrame(f):c.remove()})()}
 function rn(){if(!P||!U)return;const me=nm(U.uid),o=pu(),pn=o?nm(o):'ждём половинку',cld=P.claimed||[];days=P.start?diff(P.start,today)+1:0;
- $('nm').textContent=me+' ❤ '+pn;paintAv($('a1'),null,U.uid);paintAv($('a2'),null,o);$('n1').textContent=me;$('n2').textContent=o?pn:'…';paintSt($('s1'),U.uid);paintSt($('s2'),o);
+ $('nm').textContent=me+' ❤ '+pn;paintAv($('a1'),null,U.uid);paintAv($('a2'),null,o);$('n1').textContent=me;$('n2').textContent=o?pn:'…';{const c1=$('cn1'),L=me.length+(o?pn.length:1);c1.textContent=me;$('cn2').textContent=o?pn:'…';$('csg').style.setProperty('--cfs',L<=10?'clamp(35px,9vw,58px)':L<=14?'clamp(30px,7.5vw,46px)':L<=18?'clamp(26px,6vw,38px)':'clamp(22px,5vw,30px)')}paintSt($('s1'),U.uid);paintSt($('s2'),o);
  $('dy').textContent=P.start?days:'—';$('dl').textContent=P.start?pl(days)+' вместе':'укажи дату в настройках профиля';
  let li=0;LV.forEach((l,i)=>{if(days>=l[0])li=i});const nx=LV[li+1];
  $('lvl').textContent=P.start?'Уровень '+(li+1)+' · '+LV[li][1]:'';
@@ -518,7 +534,7 @@ function clr(){if(!confirm('Очистить весь рисунок?'))return;i
 function saveImg(){initCv();const q=2,c=document.createElement('canvas');c.width=CW*q;c.height=CH*q;const x=c.getContext('2d');x.scale(q,q);x.fillStyle='#2a1a30';x.fillRect(0,0,CW,CH);x.drawImage(fl,0,0,CW,CH);drawObjs(x);c.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='vdvoem-'+today+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
 (function(){let h='';[1,2,3,4,5,6,7,8,9,'C',0,'⌫'].forEach(d=>h+='<button'+(isNaN(d)?' class="fn"':'')+' onclick="key(\''+d+'\')">'+d+'</button>');$('kp').innerHTML=h})();
 if(hasPin())lockUI('unlock');
-const VER='2026-11-10a';
+const VER='2026-11-10b';
 async function chkVer(){try{const r=await fetch('version.txt?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=(await r.text()).trim();if(v&&v!==VER)$('up').style.display='flex'}catch(e){}}
 const doUpd=()=>{location.replace(location.pathname+'?u='+Date.now())};
 setTimeout(chkVer,3000);setInterval(chkVer,600000);
