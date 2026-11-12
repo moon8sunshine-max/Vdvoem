@@ -112,9 +112,7 @@ html{overflow-anchor:none}
 .dphs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.dph{width:72px;height:72px;object-fit:cover;border-radius:10px}.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.tools input[type=color]{width:44px;margin:0;flex:none}.tools button.on{background:var(--ac);color:#2a1020}
 
 .crystal-signature{display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,20px);width:100%;padding:8px 6px 4px;position:relative;isolation:isolate}
-.crystal-name{position:relative;display:inline-block;font-family:'Cormorant Garamond','Playfair Display',Georgia,serif;font-size:var(--cfs,clamp(35px,9vw,58px));font-weight:700;line-height:1.2;letter-spacing:1px;white-space:nowrap;
- background:linear-gradient(180deg,#fff 0%,#fff0fc 12%,#f5c8ed 27%,#e6a2e0 43%,#c99ae8 58%,#a77bc9 76%,#f9d8f5 91%,#fff 100%);background-size:100% 200%;background-position:50% 0%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
- filter:drop-shadow(0 2px 0 #e5b6e8) drop-shadow(0 4px 0 #9b65ae) drop-shadow(0 8px 8px #0008) drop-shadow(0 0 12px #e9a2e880);animation:crystal-light 9s ease-in-out infinite}
+.crystal-name{position:relative;display:inline-block;font-family:'Marck Script','Cormorant Garamond',Georgia,serif;font-size:var(--cfs,clamp(40px,11vw,60px));font-weight:400;line-height:1.25;letter-spacing:.5px;white-space:nowrap;color:#fff;background:linear-gradient(180deg,#ffffff 0%,#ffeefb 50%,#f2cdf6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 9px rgba(233,162,232,.45)) drop-shadow(0 2px 3px rgba(40,10,60,.5))}
 .floating-heart{position:relative;flex:0 0 42px;width:42px;height:54px;display:flex;align-items:center;justify-content:center;animation:heart-float 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #ff8bd8) drop-shadow(0 0 16px #bb7bff)}
 .heart-gem{width:36px;height:34px;display:block}
 .heart-spark{position:absolute;color:#fff0ff;text-shadow:0 0 9px #ff8edc;pointer-events:none}
@@ -534,7 +532,7 @@ function clr(){if(!confirm('Очистить весь рисунок?'))return;i
 function saveImg(){initCv();const q=2,c=document.createElement('canvas');c.width=CW*q;c.height=CH*q;const x=c.getContext('2d');x.scale(q,q);x.fillStyle='#2a1a30';x.fillRect(0,0,CW,CH);x.drawImage(fl,0,0,CW,CH);drawObjs(x);c.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='vdvoem-'+today+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
 (function(){let h='';[1,2,3,4,5,6,7,8,9,'C',0,'⌫'].forEach(d=>h+='<button'+(isNaN(d)?' class="fn"':'')+' onclick="key(\''+d+'\')">'+d+'</button>');$('kp').innerHTML=h})();
 if(hasPin())lockUI('unlock');
-const VER='2026-11-10b';
+const VER='2026-11-10c';
 async function chkVer(){try{const r=await fetch('version.txt?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=(await r.text()).trim();if(v&&v!==VER)$('up').style.display='flex'}catch(e){}}
 const doUpd=()=>{location.replace(location.pathname+'?u='+Date.now())};
 setTimeout(chkVer,3000);setInterval(chkVer,600000);
