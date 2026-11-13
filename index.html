@@ -120,7 +120,7 @@ html{overflow-anchor:none}
 @keyframes crystal-light{0%,100%{background-position:50% 0%}50%{background-position:50% 100%}}
 @keyframes heart-float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-9px) rotate(5deg)}}
 @keyframes sparkle{0%,100%{opacity:.25;transform:scale(.7) rotate(0deg)}50%{opacity:1;transform:scale(1.3) rotate(45deg)}}
-.pc .pname{display:none}
+.pc .pname{display:none}.pc .avw{margin-bottom:14px}
 @media (max-width:380px){.crystal-signature{gap:7px}.floating-heart{flex-basis:30px;width:30px}.heart-gem{width:28px;height:27px}.crystal-name{letter-spacing:0}}
 @media (prefers-reduced-motion:reduce){.crystal-name,.floating-heart,.heart-spark,.hw.full,.spk{animation:none}}
 #cf{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%;background:none;border:0;border-radius:0}
@@ -193,7 +193,7 @@ html{overflow-anchor:none}
 <div class="mu">Как ты зовёшь свою половинку</div><input id="nk" maxlength="30" placeholder="Моя любимая, моя жонушка, моя сеньорита…" onchange="setProf({nick:this.value.trim()})"></div></div>
 <div class="c ed-only"><h3>Рамки</h3><div class="frs" id="frs"></div>
 <button class="s" onclick="pickFrameFile()">＋ Своя рамка (PNG, GIF, WebP)</button><input type="file" id="ff" accept="image/png,image/gif,image/webp" style="display:none" onchange="onFrame(this)">
-<div class="mu" style="margin-top:8px">Размер своей рамки</div><input type="range" id="fs" min="100" max="170" onchange="setProf({fs:+this.value})">
+<div class="mu" style="margin-top:8px">Размер рамки (при загрузке подбирается сам, здесь можно поправить)</div><input type="range" id="fs" min="60" max="150" value="100" onchange="setFrameSize(+this.value)">
 <div class="mu">Гифка в рамке играет постоянно. Файл до 690 КБ, лучше с прозрачной серединой.</div></div>
 <div class="c"><h3><span class="i i8"></span>Уровень отношений</h3><div id="lv2"></div><div class="bar"><i id="lvb"></i></div><div class="mu" id="lvt"></div></div>
 <div class="c"><h3>Достижения</h3><div id="ach"></div></div>
@@ -302,7 +302,7 @@ const avUrl=u=>{const a=(profs[u]||{}).avatar;return a&&/^data:image\/jpeg;base6
 function frameOf(u){const p=profs[u]||{};if(p.frame!='custom'||!pid)return'';let c=fcache[u];if(!c||c.rev!==p.frameRev){const old=c&&c.url||'';c=fcache[u]={rev:p.frameRev,url:old};getDoc(doc(db,'pairs',pid,'frames',u)).then(s=>{if(fcache[u]!==c)return;c.url=s.exists()?dataToBlobUrl(s.data().data):'';rn()}).catch(()=>{})}return c.url}
 function paintAv(el,dot,u){const p=u?profs[u]||{}:{},u2=avUrl(u),w=el.parentNode;el.dataset.f=p.frame||'n';el.style.backgroundImage=u2;el.textContent=u2?'':((u?nm(u):'?')[0]||'?').toUpperCase();if(dot)dot.className='dot'+(isOn(p)?'':' off');
  const fu=u?frameOf(u):'';let fi=w.querySelector('.fimg');
- if(fu){if(!fi){fi=document.createElement('img');fi.className='fimg';fi.alt='';w.appendChild(fi)}if(fi.dataset.u!==fu){fi.dataset.u=fu;fi.src=fu}const z=p.fs||128;fi.style.width=fi.style.height=z+'%';fi.style.left=fi.style.top=(-(z-100)/2)+'%';fi.style.display='block'}else if(fi)fi.style.display='none'}
+ if(fu){if(!fi){fi=document.createElement('img');fi.className='fimg';fi.alt='';w.appendChild(fi)}if(fi.dataset.u!==fu){fi.dataset.u=fu;fi.src=fu}const g=frGeom(p);fi.style.width=g.w+'%';fi.style.height=g.h+'%';fi.style.left=g.l+'%';fi.style.top=g.t+'%';fi.style.objectFit=g.fill?'fill':'contain';fi.style.mixBlendMode=g.bl?'screen':'normal';fi.style.display='block'}else if(fi)fi.style.display='none'}
 function burst(n,mine){const h=$('hw');
  if(mine)h.animate([{transform:'scale(1) translateY(0)'},{transform:'scale(1.08) translateY(-9px)',offset:.3},{transform:'scale(.985) translateY(2px)',offset:.65},{transform:'scale(1) translateY(0)'}],{duration:420,easing:'cubic-bezier(.3,1.4,.5,1)'});
  else h.animate([{transform:'scale(1)'},{transform:'scale(1.045)',offset:.4},{transform:'scale(1)'}],{duration:380,easing:'ease-out'});
@@ -337,8 +337,8 @@ function rn(){if(!P||!U)return;const me=nm(U.uid),o=pu(),pn=o?nm(o):'ждём п
  $('ml').innerHTML=mems.slice().sort((a,b)=>a.d<b.d?1:-1).map(c=>'<div class="it"><span><small class="mu">'+c.d+' · '+esc(nm(c.by))+'</small><br>'+esc(c.t)+'</span><button class="x" onclick="del(\'memories\',\''+c.id+'\')">✕</button></div>').join('');
  renderHist();renderPings();renderQm();
  paintAv($('pav'),null,U.uid);paintSt($('ps'),U.uid);$('pn2').textContent=me;if(document.activeElement!==$('stt'))$('stt').value=myP().status||'';
- const mf=frameOf(U.uid),fh=FR.map(f=>{const un=f[2]==null||cld.includes(f[2]);return '<div class="fr'+((myP().frame||'n')==f[0]?' sel':'')+'" onclick="pickFrame(\''+f[0]+'\','+un+')"><div class="avw sm"><div class="av" data-f="'+f[0]+'" style="background-image:'+(avUrl(U.uid)||'none')+'"></div></div><small>'+(un?'':'🔒 ')+f[1]+'</small></div>'}).join('')+(mf?'<div class="fr'+(myP().frame=='custom'?' sel':'')+'" onclick="setProf({frame:\'custom\'})"><div class="avw sm"><div class="av" data-f="custom" style="background-image:'+(avUrl(U.uid)||'none')+'"></div><img class="fimg" src="'+mf+'" style="width:128%;height:128%;left:-14%;top:-14%" alt=""></div><small>Моя</small></div>':'');
- if(fh!==frsH){frsH=fh;$('frs').innerHTML=fh}if(document.activeElement!==$('fs'))$('fs').value=myP().fs||128;
+ const mf=frameOf(U.uid),fh=FR.map(f=>{const un=f[2]==null||cld.includes(f[2]);return '<div class="fr'+((myP().frame||'n')==f[0]?' sel':'')+'" onclick="pickFrame(\''+f[0]+'\','+un+')"><div class="avw sm"><div class="av" data-f="'+f[0]+'" style="background-image:'+(avUrl(U.uid)||'none')+'"></div></div><small>'+(un?'':'🔒 ')+f[1]+'</small></div>'}).join('')+(mf?'<div class="fr'+(myP().frame=='custom'?' sel':'')+'" onclick="setProf({frame:\'custom\'})"><div class="avw sm"><div class="av" data-f="custom" style="background-image:'+(avUrl(U.uid)||'none')+'"></div><img class="fimg" src="'+mf+'" style="'+frStyle(myP())+'" alt=""></div><small>Моя</small></div>':'');
+ if(fh!==frsH){frsH=fh;$('frs').innerHTML=fh}if(document.activeElement!==$('fs'))$('fs').value=(myP().fr&&myP().fr.w)?(myP().fm||100):(myP().fs||128);
  $('lv2').innerHTML=P.start?'<b>Уровень '+(li+1)+'</b> · '+LV[li][1]:'<span class="mu">Укажи дату начала в настройках</span>';
  $('lvb').style.width=(P.start?(nx?Math.min(100,(days-LV[li][0])/(nx[0]-LV[li][0])*100):100):0)+'%';$('lvt').textContent=P.start?(nx?'До уровня «'+nx[1]+'»: '+Math.max(0,nx[0]-days)+' '+pl(Math.max(0,nx[0]-days)):'Высший уровень 💗'):'';
  $('ach').innerHTML=ACH.map(a=>{const ok=a[3](),got=cld.includes(a[0]);return '<div class="it" style="align-items:center"><span><b>'+a[1]+'</b>'+(a[2]?'<br><small class="mu">Награда: '+a[2]+'</small>':'')+'</span>'+(got?'<span class="mu">✓ получено</span>':ok?'<button onclick="claim(\''+a[0]+'\')">Забрать</button>':'<span class="mu">'+a[4]()+'</span>')+'</div>'}).join('');
@@ -382,7 +382,20 @@ const sendStk=id=>addDoc(collection(pref(),'chat'),{by:U.uid,ts:serverTimestamp(
 function delStk(id){deleteDoc(doc(db,'pairs',pid,'stickers',id)).catch(er);deleteDoc(doc(db,'pairs',pid,'stickerdata',id)).catch(er)}
 async function addStk(inp){const fs=Array.from(inp.files);inp.value='';let ok=0;const pk=($('spk').value.trim()||(curPack!='Все'?curPack:'Мои')).slice(0,24);for(const f of fs){try{const m=await prepMedia(f,512),th=await thumbOf(f),r=doc(collection(db,'pairs',pid,'stickers'));await setDoc(doc(db,'pairs',pid,'stickerdata',r.id),{data:m.data,mime:m.mime});await setDoc(r,{by:U.uid,ts:Date.now(),mime:m.mime,thumb:th,pack:pk});ok++}catch(e){mediaErr(e)}}if(ok)note('Добавлено: '+ok+' (набор «'+pk+'»)')}
 const pickFrameFile=()=>$('ff').click();
-async function onFrame(inp){const f=inp.files[0];inp.value='';if(!f)return;try{const m=await prepMedia(f,768);await setDoc(doc(db,'pairs',pid,'frames',U.uid),{data:m.data,mime:m.mime,ts:Date.now()});await setProf({frame:'custom',frameRev:Date.now()});note('Рамка загружена')}catch(e){mediaErr(e)}}
+function frGeom(p){const m=(p.fm||100)/100,f=p.fr;if(f&&f.w)return{w:f.w*m,h:f.h*m,l:50-(50-f.l)*m,t:50-(50-f.t)*m,fill:1,bl:f.bl};const z=p.fs||128;return{w:z,h:z,l:-(z-100)/2,t:-(z-100)/2,fill:0,bl:0}}
+const frStyle=p=>{const g=frGeom(p);return 'width:'+g.w+'%;height:'+g.h+'%;left:'+g.l+'%;top:'+g.t+'%;object-fit:'+(g.fill?'fill':'contain')+(g.bl?';mix-blend-mode:screen':'')};
+const setFrameSize=v=>{const p=myP();setProf(p.fr&&p.fr.w?{fm:v}:{fs:Math.max(100,v)})};
+async function fitFrame(f){try{const im=await loadImg(f),sc=Math.min(1,360/Math.max(im.width,im.height)),w=Math.max(8,Math.round(im.width*sc)),h=Math.max(8,Math.round(im.height*sc)),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(im,0,0,w,h);const d=x.getImageData(0,0,w,h).data;
+ const px=(X,Y)=>{X=Math.round(X);Y=Math.round(Y);return X<0||Y<0||X>=w||Y>=h?null:(Y*w+X)*4},lum=i=>.2126*d[i]+.7152*d[i+1]+.0722*d[i+2];
+ const black=[[0,0],[w-1,0],[0,h-1],[w-1,h-1]].map(q=>px(q[0],q[1])).every(i=>d[i+3]>=200&&lum(i)<30);
+ const solid=(X,Y)=>{const i=px(X,Y);if(i===null)return -1;return d[i+3]>=128&&(!black||lum(i)>=60)?1:0};
+ let sx=w/2,sy=h/2;if(solid(sx,sy)==1){let ok=false;for(let r=2;r<Math.min(w,h)*.3&&!ok;r+=2)for(let a=0;a<16&&!ok;a++){const X=w/2+r*Math.cos(a*Math.PI/8),Y=h/2+r*Math.sin(a*Math.PI/8);if(solid(X,Y)==0){sx=X;sy=Y;ok=true}}if(!ok)return null}
+ let pts=[];for(let k=0;k<64;k++){const a=k/64*Math.PI*2,co=Math.cos(a),si=Math.sin(a);let r=0,hit=false;while(r<Math.max(w,h)){r++;const v=solid(sx+r*co,sy+r*si);if(v<0)break;if(v==1){hit=true;break}}if(hit&&r>6)pts.push([sx+r*co,sy+r*si,r])}
+ if(pts.length<24)return null;const rs=pts.map(q=>q[2]).sort((a,b)=>a-b),med=rs[Math.floor(rs.length/2)];pts=pts.filter(q=>q[2]>med*.75&&q[2]<med*1.3);if(pts.length<20)return null;
+ const xs=pts.map(q=>q[0]),ys=pts.map(q=>q[1]),mx=(Math.min(...xs)+Math.max(...xs))/2,my=(Math.min(...ys)+Math.max(...ys))/2,R=((Math.max(...xs)-Math.min(...xs))/2+(Math.max(...ys)-Math.min(...ys))/2)/2,dd=2*R/w;
+ let W=96/dd,H=W*h/w;const m=Math.max(1,W/160,H/160);W/=m;H/=m;if(W*dd<80){W=80/dd;H=W*h/w}
+ return{w:+W.toFixed(1),h:+H.toFixed(1),l:+(50-W*mx/w).toFixed(1),t:+(50-H*my/h).toFixed(1),bl:black?1:0}}catch(e){return null}}
+async function onFrame(inp){const f=inp.files[0];inp.value='';if(!f)return;try{const m=await prepMedia(f,768),fr=await fitFrame(f);await setDoc(doc(db,'pairs',pid,'frames',U.uid),{data:m.data,mime:m.mime,ts:Date.now()});await setProf({frame:'custom',frameRev:Date.now(),fr:fr,fm:100});note(fr?'Рамка загружена и сама подогнана под аву':'Рамка загружена. Размер подберите ползунком')}catch(e){mediaErr(e)}}
 const PHR=['Скучаю! 🥺','Люблю тебя ❤️','Не трогай, я зл[ая|ой] 😤','Обними меня 🤗','Думаю о тебе 💭','Ты моё солнышко ☀️','Я голодн[ая|ый], накорми меня 🍕','Я устал[а|] 🥱','Целую тебя 😘','Позвони мне, пожалуйста 📞','Приходи скорее домой 🏡','Спокойной ночи, сладких снов 🌙'];
 const gform=(t,g)=>t.replace(/\[([^|\]]*)\|([^\]]*)\]/g,(m,a,b)=>g=='m'?b:a);let pingAt=0;
 const myPh=()=>myP().phrases||[];
@@ -532,9 +545,9 @@ function clr(){if(!confirm('Очистить весь рисунок?'))return;i
 function saveImg(){initCv();const q=2,c=document.createElement('canvas');c.width=CW*q;c.height=CH*q;const x=c.getContext('2d');x.scale(q,q);x.fillStyle='#2a1a30';x.fillRect(0,0,CW,CH);x.drawImage(fl,0,0,CW,CH);drawObjs(x);c.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='vdvoem-'+today+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
 (function(){let h='';[1,2,3,4,5,6,7,8,9,'C',0,'⌫'].forEach(d=>h+='<button'+(isNaN(d)?' class="fn"':'')+' onclick="key(\''+d+'\')">'+d+'</button>');$('kp').innerHTML=h})();
 if(hasPin())lockUI('unlock');
-const VER='2026-11-10c';
+const VER='2026-11-10d';
 async function chkVer(){try{const r=await fetch('version.txt?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=(await r.text()).trim();if(v&&v!==VER)$('up').style.display='flex'}catch(e){}}
 const doUpd=()=>{location.replace(location.pathname+'?u='+Date.now())};
 setTimeout(chkVer,3000);setInterval(chkVer,600000);
-Object.assign(window,{doUpd,moodPick,pickMood,togSym,perStart,perEnd,savePer,editPer,delPer,qEd,savePhrase,sendCustom,msgMenu,closeMm,reactMsg,editMsg,saveEdit,delMsg,recStart,recSend,recCancel,playVo,setPack,stkHide,joinOther,sendPingIdx,sendPingText,login,logout,mk,jn,tap,addC,addM,del,send,setName,setStart,resetTaps,cp,exp,chgPin,forgot,stkTog,stkEd,pickStk,addStk,sendStk,delStk,pickFrameFile,onFrame,go,clr,key,seg,mv,selDay,setMoodDay,togPeriod,saveNote,addTask,togTask,delTask,setProf,pickAva,onAva,pickFrame,claim,openPartner,closePm,setTh,togSet,delPhrase,addPhotos,addShape,addStkObj,addText,albSeg,capPh,closeVw,colObj,delPh,objDel,objUp,openPhoto,pickPhoto,pinPh,reactPh,saveImg,savePh,sendCm,stkPickD,szObj,tool});
+Object.assign(window,{doUpd,moodPick,pickMood,togSym,perStart,perEnd,savePer,editPer,delPer,qEd,savePhrase,sendCustom,msgMenu,closeMm,reactMsg,editMsg,saveEdit,delMsg,recStart,recSend,recCancel,playVo,setPack,stkHide,joinOther,sendPingIdx,sendPingText,login,logout,mk,jn,tap,addC,addM,del,send,setName,setStart,resetTaps,cp,exp,chgPin,forgot,stkTog,stkEd,pickStk,addStk,sendStk,delStk,pickFrameFile,onFrame,go,clr,key,seg,mv,selDay,setMoodDay,togPeriod,saveNote,addTask,togTask,delTask,setProf,pickAva,onAva,pickFrame,claim,openPartner,closePm,setTh,togSet,delPhrase,addPhotos,addShape,addStkObj,addText,albSeg,capPh,closeVw,colObj,delPh,objDel,objUp,openPhoto,pickPhoto,pinPh,reactPh,saveImg,savePh,sendCm,stkPickD,szObj,tool,setFrameSize});
 </script></body></html>
