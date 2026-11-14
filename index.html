@@ -194,7 +194,7 @@ html{overflow-anchor:none}
 <div class="c ed-only"><h3>Рамки</h3><div class="frs" id="frs"></div>
 <button class="s" onclick="pickFrameFile()">＋ Своя рамка (PNG, GIF, WebP)</button><input type="file" id="ff" accept="image/png,image/gif,image/webp" style="display:none" onchange="onFrame(this)">
 <div class="mu" style="margin-top:8px">Размер рамки (при загрузке подбирается сам, здесь можно поправить)</div><input type="range" id="fs" min="60" max="150" value="100" onchange="setFrameSize(+this.value)">
-<div class="mu">Гифка в рамке играет постоянно. Файл до 690 КБ, лучше с прозрачной серединой.</div></div>
+<div class="mu">Гифка в рамке играет постоянно. Файл до 1,8 МБ, без сжатия. Рамка сама подгоняется под аву.</div></div>
 <div class="c"><h3><span class="i i8"></span>Уровень отношений</h3><div id="lv2"></div><div class="bar"><i id="lvb"></i></div><div class="mu" id="lvt"></div></div>
 <div class="c"><h3>Достижения</h3><div id="ach"></div></div>
 <div id="st" class="ed-only">
@@ -246,15 +246,15 @@ async function chgPin(){const o=$('op').value,a=$('np1').value,b=$('np2').value;
 const dataToBlobUrl=d=>{const m=/^data:((?:image\/(?:gif|png|webp|jpeg))|(?:video\/(?:webm|mp4)));base64,([A-Za-z0-9+\/=]+)$/.exec(d||'');if(!m)return'';const b=atob(m[2]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return URL.createObjectURL(new Blob([u],{type:m[1]}))};
 const readURL=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no('read');r.readAsDataURL(f)});
 const loadImg=f=>new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=()=>no('img');i.src=u});
-async function shrink(f,dims){const im=await loadImg(f);for(const d of dims){const sc=Math.min(1,d/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sc));c.height=Math.max(1,Math.round(im.height*sc));c.getContext('2d').drawImage(im,0,0,c.width,c.height);let u=c.toDataURL('image/webp',.88);if(u.startsWith('data:image/png'))u=c.toDataURL('image/png');if(u.length<940000)return{data:u,mime:u.slice(5,u.indexOf(';'))}}throw'big'}
-async function prepMedia(f,maxDim){const t=f.type;if(!/^(image\/(gif|png|webp|jpeg)|video\/(webm|mp4))$/.test(t))throw'type';let raw=/^(image\/(gif|webp)|video)/.test(t);
+async function shrink(f,dims,cap=940000){const im=await loadImg(f);for(const d of dims){const sc=Math.min(1,d/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sc));c.height=Math.max(1,Math.round(im.height*sc));c.getContext('2d').drawImage(im,0,0,c.width,c.height);let u=c.toDataURL('image/webp',.88);if(u.startsWith('data:image/png'))u=c.toDataURL('image/png');if(u.length<cap)return{data:u,mime:u.slice(5,u.indexOf(';'))}}throw'big'}
+async function prepMedia(f,maxDim,lim=LIM){const t=f.type;if(!/^(image\/(gif|png|webp|jpeg)|video\/(webm|mp4))$/.test(t))throw'type';let raw=/^(image\/(gif|webp)|video)/.test(t);
  if(t=='image/png'){const u8=new Uint8Array(await f.slice(0,200000).arrayBuffer());raw=new TextDecoder('latin1').decode(u8).indexOf('acTL')>=0}
- if(raw){if(f.size>LIM)throw'big';return{data:await readURL(f),mime:t}}return shrink(f,[maxDim,384,256,192])}
+ if(raw){if(f.size>lim)throw'big';return{data:await readURL(f),mime:t}}return shrink(f,[maxDim,768,512,384,256],lim>LIM?2600000:940000)}
 async function thumbOf(f){const c=document.createElement('canvas');c.width=c.height=160;const x=c.getContext('2d');
  if(f.type.startsWith('image/')){const im=await loadImg(f),q=Math.min(160/im.width,160/im.height);x.drawImage(im,(160-im.width*q)/2,(160-im.height*q)/2,im.width*q,im.height*q)}
  else{try{const v=document.createElement('video');v.muted=true;v.playsInline=true;v.src=URL.createObjectURL(f);await new Promise((ok,no)=>{v.onloadeddata=ok;v.onerror=no;setTimeout(no,4000)});v.currentTime=Math.min(.1,v.duration||0);await new Promise(ok=>{v.onseeked=ok;setTimeout(ok,800)});const q=Math.min(160/v.videoWidth,160/v.videoHeight);x.drawImage(v,(160-v.videoWidth*q)/2,(160-v.videoHeight*q)/2,v.videoWidth*q,v.videoHeight*q);URL.revokeObjectURL(v.src)}catch(e){x.fillStyle='#ffffff22';x.beginPath();x.arc(80,80,64,0,7);x.fill();x.fillStyle='#fff';x.font='60px sans-serif';x.textAlign='center';x.fillText('▶',80,100)}}
  let u=c.toDataURL('image/webp',.8);if(u.startsWith('data:image/png'))u=c.toDataURL('image/png');return u}
-const mediaErr=e=>note(e==='big'?'Файл слишком большой: нужно до 690 КБ. Сожмите гифку (например, на ezgif.com) и загрузите снова':e==='type'?'Этот формат не подходит':'Не удалось загрузить файл');
+const mediaErr=e=>note(e==='big'?'Файл слишком большой. Сожмите гифку (например, на ezgif.com) и загрузите снова':e==='type'?'Этот формат не подходит':'Не удалось загрузить файл');
 const getTh=()=>{try{return localStorage.getItem('vdvoem_th')||'plum'}catch(e){return'plum'}};
 document.documentElement.dataset.th=getTh();
 function note(t){const b=$('er');b.textContent=t;b.style.display='block';clearTimeout(note.t);note.t=setTimeout(()=>b.style.display='none',4500)}
@@ -298,8 +298,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=D
 const isOn=p=>!!(p&&p.online&&Date.now()-(p.lastSeen||0)<150000);
 function lastSeenText(p){if(isOn(p))return'в сети';if(!p||!p.lastSeen)return'не в сети';const d=new Date(p.lastSeen),t=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),k=iso(d);return'был'+((p&&p.g)=='m'?'':'а')+' в сети '+(k==today?'сегодня в '+t:k==addDays(today,-1)?'вчера в '+t:d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})+' в '+t)}
 function paintSt(el,u){if(!el)return;const on=!!u&&isOn(profs[u]);el.innerHTML='<i class="dot'+(on?'':' off')+'"></i><span>'+(u?(on?'в сети':'не в сети'):'ждём…')+'</span>'}
-const avUrl=u=>{const a=(profs[u]||{}).avatar;return a&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(a)?'url('+a+')':''};
-function frameOf(u){const p=profs[u]||{};if(p.frame!='custom'||!pid)return'';let c=fcache[u];if(!c||c.rev!==p.frameRev){const old=c&&c.url||'';c=fcache[u]={rev:p.frameRev,url:old};getDoc(doc(db,'pairs',pid,'frames',u)).then(s=>{if(fcache[u]!==c)return;c.url=s.exists()?dataToBlobUrl(s.data().data):'';rn()}).catch(()=>{})}return c.url}
+const avUrl=u=>{const a=(profs[u]||{}).avatar;return a&&/^data:image\/(?:jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(a)?'url('+a+')':''};
+function frameOf(u){const p=profs[u]||{};if(p.frame!='custom'||!pid)return'';let c=fcache[u];if(!c||c.rev!==p.frameRev){const old=c&&c.url||'';c=fcache[u]={rev:p.frameRev,url:old};getDoc(doc(db,'pairs',pid,'frames',u)).then(async s=>{if(fcache[u]!==c)return;let url='';if(s.exists()){const d=s.data();let data=d.data;if(d.n>1){const ps=await Promise.all(Array.from({length:d.n-1},(_,i)=>getDoc(doc(db,'pairs',pid,'fparts',u+'_'+(i+1)))));data+=ps.map(q=>q.exists()?q.data().d:'').join('')}url=dataToBlobUrl(data)}if(fcache[u]!==c)return;c.url=url;rn()}).catch(()=>{})}return c.url}
 function paintAv(el,dot,u){const p=u?profs[u]||{}:{},u2=avUrl(u),w=el.parentNode;el.dataset.f=p.frame||'n';el.style.backgroundImage=u2;el.textContent=u2?'':((u?nm(u):'?')[0]||'?').toUpperCase();if(dot)dot.className='dot'+(isOn(p)?'':' off');
  const fu=u?frameOf(u):'';let fi=w.querySelector('.fimg');
  if(fu){if(!fi){fi=document.createElement('img');fi.className='fimg';fi.alt='';w.appendChild(fi)}if(fi.dataset.u!==fu){fi.dataset.u=fu;fi.src=fu}const g=frGeom(p);fi.style.width=g.w+'%';fi.style.height=g.h+'%';fi.style.left=g.l+'%';fi.style.top=g.t+'%';fi.style.objectFit=g.fill?'fill':'contain';fi.style.mixBlendMode=g.bl?'screen':'normal';fi.style.display='block'}else if(fi)fi.style.display='none'}
@@ -395,7 +395,7 @@ async function fitFrame(f){try{const im=await loadImg(f),sc=Math.min(1,360/Math.
  const xs=pts.map(q=>q[0]),ys=pts.map(q=>q[1]),mx=(Math.min(...xs)+Math.max(...xs))/2,my=(Math.min(...ys)+Math.max(...ys))/2,R=((Math.max(...xs)-Math.min(...xs))/2+(Math.max(...ys)-Math.min(...ys))/2)/2,dd=2*R/w;
  let W=96/dd,H=W*h/w;const m=Math.max(1,W/160,H/160);W/=m;H/=m;if(W*dd<80){W=80/dd;H=W*h/w}
  return{w:+W.toFixed(1),h:+H.toFixed(1),l:+(50-W*mx/w).toFixed(1),t:+(50-H*my/h).toFixed(1),bl:black?1:0}}catch(e){return null}}
-async function onFrame(inp){const f=inp.files[0];inp.value='';if(!f)return;try{const m=await prepMedia(f,768),fr=await fitFrame(f);await setDoc(doc(db,'pairs',pid,'frames',U.uid),{data:m.data,mime:m.mime,ts:Date.now()});await setProf({frame:'custom',frameRev:Date.now(),fr:fr,fm:100});note(fr?'Рамка загружена и сама подогнана под аву':'Рамка загружена. Размер подберите ползунком')}catch(e){mediaErr(e)}}
+async function onFrame(inp){const f=inp.files[0];inp.value='';if(!f)return;try{const m=await prepMedia(f,1024,1800*1024),fr=await fitFrame(f),CHK=900000,parts=[];for(let i=0;i<m.data.length;i+=CHK)parts.push(m.data.slice(i,i+CHK));await Promise.all(parts.slice(1).map((q,i)=>setDoc(doc(db,'pairs',pid,'fparts',U.uid+'_'+(i+1)),{d:q})));for(let i=parts.length;i<=3;i++)deleteDoc(doc(db,'pairs',pid,'fparts',U.uid+'_'+i)).catch(()=>{});await setDoc(doc(db,'pairs',pid,'frames',U.uid),{data:parts[0],n:parts.length,mime:m.mime,ts:Date.now()});await setProf({frame:'custom',frameRev:Date.now(),fr:fr,fm:100});note(fr?'Рамка загружена и сама подогнана под аву':'Рамка загружена. Размер подберите ползунком')}catch(e){mediaErr(e)}}
 const PHR=['Скучаю! 🥺','Люблю тебя ❤️','Не трогай, я зл[ая|ой] 😤','Обними меня 🤗','Думаю о тебе 💭','Ты моё солнышко ☀️','Я голодн[ая|ый], накорми меня 🍕','Я устал[а|] 🥱','Целую тебя 😘','Позвони мне, пожалуйста 📞','Приходи скорее домой 🏡','Спокойной ночи, сладких снов 🌙'];
 const gform=(t,g)=>t.replace(/\[([^|\]]*)\|([^\]]*)\]/g,(m,a,b)=>g=='m'?b:a);let pingAt=0;
 const myPh=()=>myP().phrases||[];
@@ -466,7 +466,7 @@ function addTask(){const t=$('tin').value.trim();if(!t)return;addDoc(collection(
 const togTask=(id,v)=>updateDoc(doc(db,'pairs',pid,'tasks',id),{done:v}).catch(er),delTask=id=>deleteDoc(doc(db,'pairs',pid,'tasks',id)).catch(er);
 function pickFrame(f,un){if(!un){note('Эта рамка откроется после получения достижения');return}setProf({frame:f})}
 const pickAva=()=>$('af').click();
-function onAva(inp){const f=inp.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=384;const x=c.getContext('2d'),m=Math.min(im.width,im.height);x.imageSmoothingQuality='high';x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,384,384);setProf({avatar:c.toDataURL('image/jpeg',.88)});URL.revokeObjectURL(im.src)};im.onerror=()=>note('Не удалось открыть картинку');im.src=URL.createObjectURL(f);inp.value=''}
+function onAva(inp){const f=inp.files[0];if(!f)return;const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height);let out='';for(const z of [[640,.9],[512,.85],[384,.8]]){const c=document.createElement('canvas'),q=Math.min(z[0],m);c.width=c.height=q;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,q,q);let u=c.toDataURL('image/webp',z[1]);if(u.startsWith('data:image/png'))u=c.toDataURL('image/jpeg',z[1]);out=u;if(u.length<420000)break}setProf({avatar:out});URL.revokeObjectURL(im.src)};im.onerror=()=>note('Не удалось открыть картинку');im.src=URL.createObjectURL(f);inp.value=''}
 function openPartner(){const o=pu();if(!o){note('Половинка ещё не подключилась');return}const p=profs[o]||{},mp=myP(),m=(moods[today]||{})[o],cld=P.claimed||[],ts=tasks.filter(t=>t.uid==o),dn=ts.filter(t=>t.done).length,nt=notes[o+'_'+today],sy=((syms[today]||{})[o]||[]);
  let li=0;LV.forEach((l,i)=>{if(days>=l[0])li=i});let wk='';for(let i=6;i>=0;i--){const k=addDays(today,-i),x=(moods[k]||{})[o];wk+='<span class="wkd">'+(x!=null?MO[x]:'·')+'<small>'+['вс','пн','вт','ср','чт','пт','сб'][new Date(k+'T00:00').getDay()]+'</small></span>'}
  const tile=(a,b)=>'<div class="pt"><small>'+a+'</small><b>'+b+'</b></div>';
@@ -545,7 +545,7 @@ function clr(){if(!confirm('Очистить весь рисунок?'))return;i
 function saveImg(){initCv();const q=2,c=document.createElement('canvas');c.width=CW*q;c.height=CH*q;const x=c.getContext('2d');x.scale(q,q);x.fillStyle='#2a1a30';x.fillRect(0,0,CW,CH);x.drawImage(fl,0,0,CW,CH);drawObjs(x);c.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='vdvoem-'+today+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
 (function(){let h='';[1,2,3,4,5,6,7,8,9,'C',0,'⌫'].forEach(d=>h+='<button'+(isNaN(d)?' class="fn"':'')+' onclick="key(\''+d+'\')">'+d+'</button>');$('kp').innerHTML=h})();
 if(hasPin())lockUI('unlock');
-const VER='2026-11-10d';
+const VER='2026-11-10e';
 async function chkVer(){try{const r=await fetch('version.txt?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=(await r.text()).trim();if(v&&v!==VER)$('up').style.display='flex'}catch(e){}}
 const doUpd=()=>{location.replace(location.pathname+'?u='+Date.now())};
 setTimeout(chkVer,3000);setInterval(chkVer,600000);
